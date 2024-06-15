@@ -2,6 +2,10 @@
 
 This tool helps you identify visual changes on a website between two points in time, making it useful for detecting regressions after updates or changes.
 
+## Background
+
+I used Google Gemini in to create this tool. Aside from running `npm init` and installing depedancies, I didn't write a single line of code, I did debug, and provide additional debug information to the LLM when it got stuck on a few things, I would provide that information back to the LLM and it would update it's code accordingly. The whole chat (in great length) is here. https://g.co/gemini/share/64bfb92710a9
+
 ## Features
 
 *   **Crawling and Screenshot Capture:** Crawls a website, extracts unique URLs, and captures full-page screenshots in a specified resolution.
