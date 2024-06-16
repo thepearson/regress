@@ -2,10 +2,6 @@
 
 This tool helps you identify visual changes on a website between two points in time, making it useful for detecting regressions after updates or changes.
 
-## Background
-
-I used Google Gemini in to create this tool. Aside from running `npm init` and installing depedancies, I didn't write a single line of code, I did debug, and provide additional debug information to the LLM when it got stuck on a few things, I would provide that information back to the LLM and it would update it's code accordingly. The whole chat (in great length) is here. https://g.co/gemini/share/64bfb92710a9
-
 ## Features
 
 *   **Crawling and Screenshot Capture:** Crawls a website, extracts unique URLs, and captures full-page screenshots in a specified resolution.
@@ -46,7 +42,7 @@ I used Google Gemini in to create this tool. Aside from running `npm init` and i
 
 1. **Run the Script**: Execute the following command, replacing the placeholders with your actual values:
     ```bash
-    node crawl_and_capture.js <website_url> <viewport_width> <viewport_height> <max_urls> <max_depth>
+    npm run capture <website_url> <viewport_width> <viewport_height> <max_urls> <max_depth>
     ```
 
     * `<website_url>`: The URL of the website you want to crawl.
@@ -63,7 +59,7 @@ I used Google Gemini in to create this tool. Aside from running `npm init` and i
 1. **Make Changes**: After capturing the initial screenshots (Phase 1), make the desired changes to your website (e.g., software updates).
 2. **Run the Script**: Execute the following command from the same directory where you ran Phase 1:
     ```bash
-    node compare_and_report.js <website_url> <viewport_width> <viewport_height>
+    npm run compare <website_url> <viewport_width> <viewport_height>
     ```
 
     * `<website_url>`: The URL of the website you want to crawl.
@@ -76,10 +72,10 @@ I used Google Gemini in to create this tool. Aside from running `npm init` and i
 
 ```bash
 # Phase 1:
-node crawl_and_capture.js https://www.example.com 1920 1080 50 2
+npm run capture https://www.example.com 1920 1080 50 2
 
 # Phase 2 (after making changes):
-node compare_and_report.js https://www.example.com 1920 1080
+npm run compare https://www.example.com 1920 1080
 ```
 
 ## License

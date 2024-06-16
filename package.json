@@ -4,12 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "capture": "node scripts/capture.js",
+    "compare": "node scripts/compare.js",
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "imagemagick": "^0.1.3",
     "puppeteer": "^22.11.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

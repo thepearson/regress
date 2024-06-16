@@ -2,21 +2,19 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
-const { createFilenameFromUrl, isValidInternalLink, screenshotDir, urlsFile, websiteUrl } = require('./utils'); 
 
+const { createFilenameFromUrl, isValidInternalLink, getScreenshotDir, getUrlsFile} = require('./utils'); 
 
-// Get arguments from command line (including websiteUrl)
-const viewportWidth = parseInt(process.argv[3]) || 2560; 
-const viewportHeight = parseInt(process.argv[4]) || 1440;
-const maxUrls = parseInt(process.argv[5]) || Infinity; 
-const maxDepth = parseInt(process.argv[6]) || Infinity; 
+async function crawlAndCapture(websiteUrl, viewportWidth, viewportHeight, maxUrls = Infinity, maxDepth = Infinity) {
 
-if (!websiteUrl) {
-  console.error('Please provide a website URL as a command-line argument.');
-  process.exit(1); 
-}
+  const urlsFile = getUrlsFile(websiteUrl);
+  const screenshotDir = getScreenshotDir(websiteUrl);
 
-async function crawlAndCapture() {
+  // Create the screenshot directory if it doesn't exist
+  if (!fs.existsSync(screenshotDir)) {
+    fs.mkdirSync(screenshotDir);
+  }
+
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   const visitedUrls = new Set(); // Track visited URLs to avoid duplicates
@@ -51,10 +49,12 @@ async function crawlAndCapture() {
             links.map((link) => link.href)
           );
           for (const link of links) {
-            if (isValidInternalLink(link)) {
+            if (isValidInternalLink(link, websiteUrl)) {
               urlsToCrawl.push({ url: link, depth: depth + 1 });
             }
           }
+        } else {
+          // do something different
         }
       } catch (error) {
         console.error(`Error processing ${url}: ${error.message}`);
@@ -70,9 +70,8 @@ async function crawlAndCapture() {
   fs.writeFileSync(urlsFile, JSON.stringify(capturedUrls, null, 2));
 }
 
-// Create the screenshot directory if it doesn't exist
-if (!fs.existsSync(screenshotDir)) {
-  fs.mkdirSync(screenshotDir);
-}
 
-crawlAndCapture();
+
+module.exports = {
+  crawlAndCapture
+}
