@@ -67,23 +67,23 @@ function createDiffImage(original, newImage, websiteUrl) {
     });
 }
 
-function getScreenshotDir(websiteUrl) {
-  try {
-    return `./screenshots_${new URL(websiteUrl).hostname}`;
-  } catch (e) {
-    throw new Error(`Error getting screenshot directory: ${e.message}`)
-  }
-}
+// function getScreenshotDir(websiteUrl) {
+//   try {
+//     return `./screenshots_${new URL(websiteUrl).hostname}`;
+//   } catch (e) {
+//     throw new Error(`Error getting screenshot directory: ${e.message}`)
+//   }
+// }
 
-function getUrlsFile(websiteUrl) {
-  try {
-    const screenshotDir = getScreenshotDir(websiteUrl);
-    return path.join(screenshotDir, 'urls.json');
-  } catch (e) {
-    throw new Error(`Error getting Url's file: ${e.message}`)
-  }
+// function getUrlsFile(websiteUrl) {
+//   try {
+//     const screenshotDir = getScreenshotDir(websiteUrl);
+//     return path.join(screenshotDir, 'urls.json');
+//   } catch (e) {
+//     throw new Error(`Error getting Url's file: ${e.message}`)
+//   }
   
-}
+// }
 
 module.exports = {
   createFilenameFromUrl,

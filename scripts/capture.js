@@ -1,11 +1,30 @@
 const { crawlAndCapture } = require('../src/crawl_and_capture');
+const fs = require('fs');
+const path = require('path');
 
-// Get arguments from command line (including websiteUrl)
-const websiteUrl = process.argv[2] || 'https://www.example.com';
-const viewportWidth = parseInt(process.argv[3]) || 2560;
-const viewportHeight = parseInt(process.argv[4]) || 1440;
-const maxUrls = parseInt(process.argv[5]) || Infinity;
-const maxDepth = parseInt(process.argv[6]) || Infinity;
+// Get the config file path from command-line argument
+const configFilePath = process.argv[2];
 
-// 
-crawlAndCapture(websiteUrl, viewportWidth, viewportHeight, maxUrls, maxDepth);
+if (!configFilePath) {
+  console.error('Please provide the path to the configuration file as a command-line argument.');
+  process.exit(1);
+}
+
+// Load the configuration from the JSON file
+const config = JSON.parse(fs.readFileSync(configFilePath, 'utf-8'));
+
+// Extract parameters from the configuration
+const {
+  website = 'https://www.example.com',
+  viewportWidth = 2560,
+  viewportHeight = 1440,
+  mobile = false,
+  maxUrls = Infinity,
+  maxDepth = Infinity,
+  ignore_patterns = []
+} = config;
+
+const configFileName = path.parse(configFilePath).name;
+
+// Call the crawlAndCapture function with the extracted parameters
+crawlAndCapture(configFileName, website, viewportWidth, viewportHeight, mobile, ignore_patterns, maxUrls, maxDepth);

@@ -38,18 +38,70 @@ This tool helps you identify visual changes on a website between two points in t
 
 ## Usage
 
+### Config
+
+The config folder allows you to create and store locally many configs for different sites, devices and environemtns, for example:
+
+**conf/mysite-mobile.conf**
+```
+{
+  "website": "https://www.mysite.com",
+  "viewportWidth": 1920,
+  "viewportHeight": 1080,
+  "mobile": true
+}
+```
+
+Will capture mobile screenshots in the folder `screenshots_mysite-mobile`. Running a comparison will place the new and comparison screenshots in the same folder.
+
+You could have the same site and have multiple config files. For example `conf/mysite-prod-v-uat.conf`, `conf/mysite-prod-v-local.conf` ect.
+
+
+
+There is an example config file in `conf/example.conf` the parameters are listed below.
+
+example.conf
+```
+{
+  "website": "https://www.example.com",
+  "viewportWidth": 1920,
+  "viewportHeight": 1080,
+  "mobile": false,
+  "maxUrls": 100,
+  "maxDepth": 2,
+  "ignore_patterns": [
+    "^\.filter.*", 
+    "exclude"
+  ],
+  "compareDomain": "http://uat.example.com",
+  "username": "myuser",
+  "password": "mypassword"
+}
+```
+
+ * **website** - The base website to crawl and capture, this is considered the "correct" version, comparison scans will be run against this one.
+ * **viewPortWidth** - The width of the screen
+ * **viewPortHeight** - The height of the browser screen
+ * **mobile** - If we want to capture as a mobile device.
+ * **maxUrls** - How many URLs ot total to do, helps limit the amount of testing.
+ * **maxDepth** - How deep in the site AI to crawl and capture.
+ * **ignorePatterns** - An array of Regular Expressions to test against a URL, these URL'swill be ignored.
+ * **compareDomain** - If the domain we want to compare is on a different host (ie Test or dev) we can run the coparison against this. This allows us to test before we deploy.
+ * **username** - If the comparison domain is different from the one we want to compare it to and it has HTTP basic authentication, then this is the username.
+ * **password** - If the comparison domain is different from the one we want to compare it to and it has HTTP basic authentication, then this is the password.
+
+
+
+
 ### Phase 1: Initial Capture
 
 1. **Run the Script**: Execute the following command, replacing the placeholders with your actual values:
     ```bash
-    npm run capture <website_url> <viewport_width> <viewport_height> <max_urls> <max_depth>
+    npm run capture <config-path>
     ```
 
-    * `<website_url>`: The URL of the website you want to crawl.
-    * `<viewport_width>`: The width of the browser viewport (e.g., 1920).
-    * `<viewport_height>`: The height of the browser viewport (e.g., 1080).
-    * `<max_urls>`: The maximum number of URLs to crawl (optional, defaults to unlimited).
-    * `<max_depth>`: The maximum depth of the crawl (optional, defaults to unlimited).
+    * `<config-path>`: the path to the config file.
+
     
 2. **Output**: Screenshots will be saved in the `screenshots_<website_hostname>` directory, and the list of crawled URLs will be saved in `screenshots_<website_hostname>/urls.json`.
 
@@ -59,12 +111,11 @@ This tool helps you identify visual changes on a website between two points in t
 1. **Make Changes**: After capturing the initial screenshots (Phase 1), make the desired changes to your website (e.g., software updates).
 2. **Run the Script**: Execute the following command from the same directory where you ran Phase 1:
     ```bash
-    npm run compare <website_url> <viewport_width> <viewport_height>
+    npm run compare <config-path>
     ```
 
-    * `<website_url>`: The URL of the website you want to crawl.
-    * `<viewport_width>`: The width of the browser viewport (e.g., 1920).
-    * `<viewport_height>`: The height of the browser viewport (e.g., 1080).
+    * `<config-path>`: the path to the config file.
+
 
 3. **Output**: A detailed report (`report.json`) will be generated in the `screenshots_<website_hostname>` directory. The report will be sorted by the percentage of difference and will include file paths for the original, new, and difference images (if applicable).
 
@@ -72,10 +123,10 @@ This tool helps you identify visual changes on a website between two points in t
 
 ```bash
 # Phase 1:
-npm run capture https://www.example.com 1920 1080 50 2
+npm run capture conf/exampe.conf
 
 # Phase 2 (after making changes):
-npm run compare https://www.example.com 1920 1080
+npm run compare conf/exampe.conf
 ```
 
 ## License

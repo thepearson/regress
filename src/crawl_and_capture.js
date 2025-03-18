@@ -3,12 +3,12 @@ const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
 
-const { createFilenameFromUrl, isValidInternalLink, getScreenshotDir, getUrlsFile} = require('./utils'); 
+const { createFilenameFromUrl, isValidInternalLink } = require('./utils'); 
 
-async function crawlAndCapture(websiteUrl, viewportWidth, viewportHeight, maxUrls = Infinity, maxDepth = Infinity) {
+async function crawlAndCapture(configFileName, websiteUrl, viewportWidth, viewportHeight, mobile = false, ignorePatterns = [], maxUrls = Infinity, maxDepth = Infinity) {
 
-  const urlsFile = getUrlsFile(websiteUrl);
-  const screenshotDir = getScreenshotDir(websiteUrl);
+  const screenshotDir = `./screenshots_${configFileName}`;
+  const urlsFile = path.join(screenshotDir, 'urls.json');
 
   // Create the screenshot directory if it doesn't exist
   if (!fs.existsSync(screenshotDir)) {
@@ -21,14 +21,17 @@ async function crawlAndCapture(websiteUrl, viewportWidth, viewportHeight, maxUrl
   const urlsToCrawl = [{ url: websiteUrl, depth: 0 }]; // Queue with initial URL and depth
   const capturedUrls = []; // To store captured URLs in the JSON file
 
-  // Set viewport size
-  await page.setViewport({ width: viewportWidth, height: viewportHeight });
+  if (mobile) {
+    await page.emulate(puppeteer.devices['iPhone X']); // Emulate an iPhone X
+  } else {
+    await page.setViewport({ width: viewportWidth, height: viewportHeight });
+  }
 
   async function crawl() {
     while (urlsToCrawl.length > 0 && capturedUrls.length < maxUrls) {
       const { url, depth } = urlsToCrawl.shift();
 
-      if (visitedUrls.has(url) || depth > maxDepth) continue; // Skip if visited or depth exceeded
+      if (visitedUrls.has(url) || depth > maxDepth || shouldIgnoreUrl(url, ignorePatterns)) continue; // Skip if visited or depth exceeded
       visitedUrls.add(url);
       capturedUrls.push(url); // Add to the captured URLs list
 
@@ -49,7 +52,7 @@ async function crawlAndCapture(websiteUrl, viewportWidth, viewportHeight, maxUrl
             links.map((link) => link.href)
           );
           for (const link of links) {
-            if (isValidInternalLink(link, websiteUrl)) {
+            if (isValidInternalLink(link, websiteUrl) && !shouldIgnoreUrl(link, ignorePatterns)) {
               urlsToCrawl.push({ url: link, depth: depth + 1 });
             }
           }
@@ -70,7 +73,14 @@ async function crawlAndCapture(websiteUrl, viewportWidth, viewportHeight, maxUrl
   fs.writeFileSync(urlsFile, JSON.stringify(capturedUrls, null, 2));
 }
 
-
+function shouldIgnoreUrl(url, ignorePatterns) {
+  for (const pattern of ignorePatterns) {
+    if (new RegExp(pattern).test(url)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 module.exports = {
   crawlAndCapture

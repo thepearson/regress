@@ -24,3 +24,6 @@ Thumbs.db
 
 # Screenshot folders
 screenshots_*
+
+conf/*
+!conf/example.conf
