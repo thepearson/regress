@@ -4,6 +4,7 @@ const path = require('path');
 const { URL } = require('url');
 
 const { createFilenameFromUrl, isValidInternalLink } = require('./utils'); 
+const { exit } = require('process');
 
 async function crawlAndCapture(configFileName, websiteUrl, viewportWidth, viewportHeight, mobile = false, ignorePatterns = [], maxUrls = Infinity, maxDepth = Infinity) {
 
@@ -23,7 +24,7 @@ async function crawlAndCapture(configFileName, websiteUrl, viewportWidth, viewpo
   const capturedUrls = []; // To store captured URLs in the JSON file
 
   if (mobile) {
-    await page.emulate(puppeteer.devices['iPhone X']); // Emulate an iPhone X
+    await page.emulate(puppeteer.KnownDevices['iPhone 15']); // Emulate an iPhone 15
   } else {
     await page.setViewport({ width: viewportWidth, height: viewportHeight });
   }

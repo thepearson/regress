@@ -26,7 +26,7 @@ async function compareAndReport(configFileName, viewportWidth, viewportHeight, m
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   if (mobile) {
-    await page.emulate(puppeteer.devices['iPhone X']); // Emulate an iPhone X
+    await page.emulate(puppeteer.KnownDevices['iPhone 15']); // Emulate an iPhone X
   } else {
     await page.setViewport({ width: viewportWidth, height: viewportHeight });
   }
