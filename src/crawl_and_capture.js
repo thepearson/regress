@@ -7,12 +7,13 @@ const { createFilenameFromUrl, isValidInternalLink } = require('./utils');
 
 async function crawlAndCapture(configFileName, websiteUrl, viewportWidth, viewportHeight, mobile = false, ignorePatterns = [], maxUrls = Infinity, maxDepth = Infinity) {
 
-  const screenshotDir = `./screenshots_${configFileName}`;
-  const urlsFile = path.join(screenshotDir, 'urls.json');
+  const outputDir = `./output_${configFileName}`;
+  const originalDir = path.join(outputDir, 'original');
+  const urlsFile = path.join(outputDir, 'urls.json');
 
   // Create the screenshot directory if it doesn't exist
-  if (!fs.existsSync(screenshotDir)) {
-    fs.mkdirSync(screenshotDir);
+  if (!fs.existsSync(originalDir)) {
+    fs.mkdirSync(originalDir, { recursive: true });
   }
 
   const browser = await puppeteer.launch();
@@ -41,7 +42,7 @@ async function crawlAndCapture(configFileName, websiteUrl, viewportWidth, viewpo
         // Capture the screenshot
         const filename = createFilenameFromUrl(url);
         await page.screenshot({
-          path: path.join(screenshotDir, filename),
+          path: path.join(originalDir, filename),
           fullPage: true,
         });
 

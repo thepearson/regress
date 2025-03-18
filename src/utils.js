@@ -56,40 +56,16 @@ async function compareImages(original, newImage) {
   }
 }
 
-function createDiffImage(original, newImage, websiteUrl) {
-  const screenshotDir = getScreenshotDir(websiteUrl);
-  const originalFilename = path.basename(original);
-  const diffImagePath = path.join(screenshotDir, `diff_${createFilenameFromUrl(originalFilename)}`); 
-
-  exec(`convert "${original}" "${newImage}" -compose difference -composite -threshold 1% "${diffImagePath}"`) // Use 'convert'
+function createDiffImage(original, newImage, diffImagePath) {
+  exec(`convert "${original}" "${newImage}" -compose difference -composite -threshold 1% "${diffImagePath}"`)
     .catch((err) => {
       console.error(`Error creating diff image for ${newImage}: ${err.message}`);
     });
 }
 
-// function getScreenshotDir(websiteUrl) {
-//   try {
-//     return `./screenshots_${new URL(websiteUrl).hostname}`;
-//   } catch (e) {
-//     throw new Error(`Error getting screenshot directory: ${e.message}`)
-//   }
-// }
-
-// function getUrlsFile(websiteUrl) {
-//   try {
-//     const screenshotDir = getScreenshotDir(websiteUrl);
-//     return path.join(screenshotDir, 'urls.json');
-//   } catch (e) {
-//     throw new Error(`Error getting Url's file: ${e.message}`)
-//   }
-  
-// }
-
 module.exports = {
   createFilenameFromUrl,
   isValidInternalLink,
-  getScreenshotDir,
-  getUrlsFile,
   createDiffImage,
   compareImages
 };

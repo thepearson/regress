@@ -28,4 +28,4 @@ const {
 const configFileName = path.parse(configFilePath).name;
 
 // Call the compareAndReport function with the extracted parameters
-compareAndReport(configFileName, website, viewportWidth, viewportHeight, mobile, compareDomain, username, password);
+compareAndReport(configFileName, viewportWidth, viewportHeight, mobile, compareDomain, username, password);

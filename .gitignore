@@ -23,7 +23,7 @@ ehthumbs.db
 Thumbs.db
 
 # Screenshot folders
-screenshots_*
+output_*
 
 conf/*
 !conf/example.conf

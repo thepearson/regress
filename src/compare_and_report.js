@@ -5,10 +5,23 @@ const path = require('path');
 const { createFilenameFromUrl, compareImages, createDiffImage } = require('./utils'); 
 
 
-async function compareAndReport(configFileName, websiteUrl, viewportWidth, viewportHeight, mobile = false, newDomain = null, authUser = null, authPassword = null) {
+async function compareAndReport(configFileName, viewportWidth, viewportHeight, mobile = false, newDomain = null, authUser = null, authPassword = null) {
 
-  const screenshotDir = `./screenshots_${configFileName}`;
-  const urlsFile = path.join(screenshotDir, 'urls.json');
+  const outputDir = `./output_${configFileName}`;
+
+  const originalDir = path.join(outputDir, 'original');
+  const compareDir = path.join(outputDir, 'compare');
+  const differenceDir = path.join(outputDir, 'difference');
+  
+  const urlsFile = path.join(outputDir, 'urls.json');
+
+  if (!fs.existsSync(compareDir)) {
+    fs.mkdirSync(compareDir, { recursive: true });
+  }
+
+  if (!fs.existsSync(differenceDir)) {
+    fs.mkdirSync(differenceDir, { recursive: true });
+  }
 
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -23,8 +36,9 @@ async function compareAndReport(configFileName, websiteUrl, viewportWidth, viewp
 
   for (const url of originalUrls) {
     const originalFilename = createFilenameFromUrl(url);
-    const originalImagePath = path.join(screenshotDir, originalFilename);
-    const newImagePath = path.join(screenshotDir, `new_${originalFilename}`);
+    const originalImagePath = path.join(originalDir, originalFilename);
+    const newImagePath = path.join(compareDir, originalFilename);
+    const diffImagePath = path.join(differenceDir, `diff_${originalFilename}`)
 
     try {
       let newUrl = url;
@@ -43,7 +57,7 @@ async function compareAndReport(configFileName, websiteUrl, viewportWidth, viewp
       const diff = await compareImages(originalImagePath, newImagePath);
       report.push({ url, diff });
       if (diff > 0) {
-        createDiffImage(originalImagePath, newImagePath, websiteUrl); 
+        createDiffImage(originalImagePath, newImagePath, diffImagePath);
       }
 
       console.log(`Processed: ${newUrl} (difference: ${diff.toFixed(2)}%)`);
@@ -58,20 +72,19 @@ async function compareAndReport(configFileName, websiteUrl, viewportWidth, viewp
   // Sort the report by difference percentage (descending)
   report.sort((a, b) => b.diff - a.diff);
 
-  // Add file paths to the report
   const reportWithFilePaths = report.map((item) => {
     const filename = createFilenameFromUrl(item.url);
     return {
       url: item.url,
       diff: item.diff,
-      originalImagePath: path.join(screenshotDir, filename),
-      newImagePath: path.join(screenshotDir, `new_${filename}`),
-      diffImagePath: item.diff > 0 ? path.join(screenshotDir, `diff_${filename}`) : null,
+      originalImagePath: path.join(originalDir, filename),
+      newImagePath: path.join(compareDir, filename),
+      diffImagePath: item.diff > 0 ? path.join(differenceDir, `diff_${filename}`) : null,
     };
   });
 
   // Save the sorted report
-  const reportFile = path.join(screenshotDir, 'report.json');
+  const reportFile = path.join(outputDir, 'report.json');
   fs.writeFileSync(reportFile, JSON.stringify(reportWithFilePaths, null, 2));
   console.log(`Report saved to: ${reportFile}`);
 }
