@@ -12,7 +12,6 @@ async function crawlAndCapture(configFileName, websiteUrl, viewportWidth, viewpo
   const originalDir = path.join(outputDir, 'original');
   const urlsFile = path.join(outputDir, 'urls.json');
 
-  // Create the screenshot directory if it doesn't exist
   if (!fs.existsSync(originalDir)) {
     fs.mkdirSync(originalDir, { recursive: true });
   }

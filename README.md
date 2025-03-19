@@ -73,7 +73,7 @@ example.conf
     "^\.filter.*", 
     "exclude"
   ],
-  "compareDomain": "http://uat.example.com",
+  "compareDomain": "uat.example.com",
   "username": "myuser",
   "password": "mypassword"
 }
