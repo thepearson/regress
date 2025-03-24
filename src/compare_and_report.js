@@ -142,7 +142,7 @@ function generateHtmlReport(reportJson) {
         .slider { width: 80%; }
         .diff-image {
           max-width: 100%;
-          max-height: 400px;
+          max-height: 1024px;
           object-fit: contain;
           display: block;
           margin: 10px auto;
@@ -170,7 +170,7 @@ function generateHtmlReport(reportJson) {
       <script>
         const report = ${reportJson};
 
-        function loadReport() {
+function loadReport() {
           const changedList = document.getElementById('changed-list');
           const minorChangeList = document.getElementById('minor-change-list');
           const noChangeList = document.getElementById('no-change-list');
@@ -178,21 +178,28 @@ function generateHtmlReport(reportJson) {
           report.forEach(item => {
             const reportItem = document.createElement('div');
             reportItem.classList.add('report-item');
-            reportItem.innerHTML = \`
-              \${item.url} - Difference: \${item.diff.toFixed(2)}%
-              <div class="details">
-                <div class="image-container">
-                  <img src="\${item.originalImagePath}" class="original-image">
-                  <img src="\${item.newImagePath}" class="new-image" style="opacity: 0.5;">
-                </div>
-                <div class="slider-container">
-                  <input type="range" min="0" max="1" step="0.01" value="0.5" class="slider">
-                </div>
-                <img src="\${item.diffImagePath}" class="diff-image">
-              </div>
-            \`;
 
-            changedList.addEventListener('click', () => {
+            const header = document.createElement('h3');
+            header.innerText = \`
+              \${item.url} - Difference: \${item.diff.toFixed(2)}%\`;
+            reportItem.appendChild(header);
+
+            const details = document.createElement('div');
+            details.classList.add('details')
+            details.innerHTML = \`
+              <div class="image-container">
+                <img src="\${item.originalImagePath}" class="original-image">
+                <img src="\${item.newImagePath}" class="new-image" style="opacity: 0.5;">
+              </div>
+              <div class="slider-container">
+                <input type="range" min="0" max="1" step="0.01" value="0.5" class="slider">
+              </div>
+              <img src="\${item.diffImagePath}" class="diff-image">
+            \`;
+            reportItem.appendChild(details);
+
+            
+            header.addEventListener('click', (clickEvent) => {
               const details = reportItem.querySelector('.details');
               details.style.display = details.style.display === 'block' ? 'none' : 'block';
 
@@ -201,7 +208,7 @@ function generateHtmlReport(reportJson) {
 
               if (slider && newImage){
                 slider.addEventListener('input', (event) => {
-                  event.stopPropagation(); // Stop event propagation
+                  clickEvent.stopPropagation(); // Stop event propagation
                   newImage.style.opacity = slider.value;
                 });
               }
