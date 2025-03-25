@@ -1,4 +1,4 @@
-const { compareAndReport } = require('../src/compare_and_report');
+const { generatePdfReport } = require('../src/report');
 const fs = require('fs');
 const path = require('path');
 
@@ -28,5 +28,4 @@ const {
 // Extract config file name without extension
 const configFileName = path.parse(configFilePath).name;
 
-// Call the compareAndReport function with the extracted parameters
-compareAndReport(configFileName, viewportWidth, viewportHeight, mobile, compareDomain, username, password, removeSelectors);
+generatePdfReport(configFileName, compareDomain);

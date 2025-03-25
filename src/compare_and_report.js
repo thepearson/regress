@@ -5,7 +5,7 @@ const path = require('path');
 const { createFilenameFromUrl, compareImages, createDiffImage } = require('./utils'); 
 
 
-async function compareAndReport(configFileName, viewportWidth, viewportHeight, mobile = false, newDomain = null, authUser = null, authPassword = null) {
+async function compareAndReport(configFileName, viewportWidth, viewportHeight, mobile = false, newDomain = null, authUser = null, authPassword = null, removeSelectors = []) {
 
   const outputDir = `./output_${configFileName}`;
 
@@ -52,6 +52,12 @@ async function compareAndReport(configFileName, viewportWidth, viewportHeight, m
       }
 
       await page.goto(newUrl, { waitUntil: 'networkidle0' });
+
+      // Remove elements before capturing screenshot
+      if (removeSelectors.length > 0) {
+        await removeElements(page, removeSelectors);
+      }
+      
       await page.screenshot({ path: newImagePath, fullPage: true });
 
       const diff = await compareImages(originalImagePath, newImagePath);
@@ -96,9 +102,23 @@ async function compareAndReport(configFileName, viewportWidth, viewportHeight, m
   console.log(`Report saved to: ${reportFile}`);
 }
 
+async function removeElements(page, selectors) {
+  for (const selector of selectors) {
+    try {
+      await page.evaluate((sel) => {
+        const elements = document.querySelectorAll(sel);
+        elements.forEach((element) => element.remove());
+      }, selector);
+      console.log(`Removed elements matching selector: ${selector}`);
+    } catch (error) {
+      console.error(`Error removing elements matching selector ${selector}: ${error.message}`);
+    }
+  }
+}
+
 function generateHtmlReport(reportJson) {
   return `
-    <!DOCTYPE html>
+  <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
@@ -115,34 +135,33 @@ function generateHtmlReport(reportJson) {
           position: relative; 
           width: 100%; 
           max-width: 800px;
-          min-height: 1080px;
-          max-height: 4000px;
           margin: 10px auto; 
+          overflow: hidden; /* Prevent scaling */
         }
         .original-image, .new-image { 
           position: absolute; 
           top: 0; 
           left: 0; 
-          width: 100%; 
-          height: 100%; 
-          object-fit: contain; 
+          width: 100%; /* Match container width */
+          height: auto; /* Allow height to adjust */
+          object-fit: initial; /* No scaling */
         }
         .slider-container { 
-          position: fixed; /* Fixed positioning */
-          bottom: 20px; /* Position at the bottom */
-          left: 50%; /* Center horizontally */
-          transform: translateX(-50%); /* Center horizontally */
-          width: 80%; /* Match slider width */
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 80%;
           text-align: center; 
-          background-color: rgba(255, 255, 255, 0.8); /* Add background for visibility */
+          background-color: rgba(255, 255, 255, 0.8);
           padding: 10px;
-          box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Add shadow */
-          z-index: 1000; /* Ensure it's on top */
+          box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+          z-index: 1000; 
         }
         .slider { width: 80%; }
         .diff-image {
           max-width: 100%;
-          max-height: 1024px;
+          max-height: 400px;
           object-fit: contain;
           display: block;
           margin: 10px auto;
@@ -205,8 +224,15 @@ function loadReport() {
 
               const slider = reportItem.querySelector('.slider');
               const newImage = reportItem.querySelector('.new-image');
+              const originalImage = reportItem.querySelector('.original-image');
+              const imageContainer = reportItem.querySelector('.image-container');
 
-              if (slider && newImage){
+              if (slider && newImage && originalImage && imageContainer) {
+
+                const originalHeight = originalImage.naturalHeight;
+                const newHeight = newImage.naturalHeight;
+                imageContainer.style.height = Math.max(originalHeight, newHeight) + 'px';
+
                 slider.addEventListener('input', (event) => {
                   clickEvent.stopPropagation(); // Stop event propagation
                   newImage.style.opacity = slider.value;
